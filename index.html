@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氣泡排序法說明</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        h1, h2 { color: #333; }
+        pre { background: #f4f4f4; padding: 10px; border-radius: 4px; }
+        .code { color: #c7254e; background-color: #f9f2f4; padding: 3px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>氣泡排序法 (Bubble Sort)</h1>
+    <p>氣泡排序是一種簡單的排序演算法，用於將一系列元素依照大小順序排列。它的原理是透過多次比較相鄰的元素，若順序錯誤則交換，逐步將最大或最小的元素「冒泡」到序列的一端。</p>
+
+    <h2>基本想法</h2>
+    <ol>
+        <li>從陣列的開始位置依序比較每對相鄰的元素。</li>
+        <li>如果前一個元素比後一個元素大（需遞增排序），就交換它們的位置。</li>
+        <li>如此一輪過去後，最大的元素會出現在陣列的最後面。</li>
+        <li>重複以上步驟，每一輪比較的範圍逐漸縮小，直到全部元素排列完成。</li>
+    </ol>
+
+    <h2>示例範例 (JavaScript 版本)</h2>
+    <pre><code>function bubbleSort(arr) {
+    let n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = 0; j < n - 1 - i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                // 交換
+                let temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+    return arr;
+}
+
+let nums = [5, 2, 9, 1, 5, 6];
+console.log(bubbleSort(nums)); // [1, 2, 5, 5, 6, 9]</code></pre>
+
+    <h2>時間複雜度</h2>
+    <p>氣泡排序的平均與最壞情況時間複雜度皆為 <strong>O(n<sup>2</sup>)</strong>，最佳情況（已排列的資料）為 <strong>O(n)</strong>。</p>
+
+    <h2>優點與缺點</h2>
+    <ul>
+        <li>實作簡單，容易理解。</li>
+        <li>效率較低，不適合大型資料集合。</li>
+        <li>穩定（相等元素的相對順序不會改變）。</li>
+    </ul>
+
+    <h2>互動式示範</h2>
+    <p>輸入一組以逗號分隔的數字，點選「排序」按鈕即可觀看氣泡排序依步驟運作的動畫。</p>
+    <div>
+        <input type="text" id="inputArray" placeholder="例如：5,2,9,1,5,6" style="width:250px;">
+        <button id="sortBtn">排序</button>
+    </div>
+    <div id="animation" style="margin-top:20px;"></div>
+
+    <style>
+        .bar-container { display: flex; align-items: flex-end; height: 150px; margin-top: 10px; }
+        .bar { width: 30px; margin: 0 3px; background-color: #69c; text-align: center; color: white; transition: all 0.3s ease; }
+        .highlight { background-color: yellow; }
+        .code-block { white-space: pre; font-family: monospace; background:#f4f4f4; padding:10px; }
+    </style>
+
+    <script>
+        const codeLines = [
+`function bubbleSort(arr) {`,
+`    let n = arr.length;`,
+`    for (let i = 0; i < n - 1; i++) {`,
+`        for (let j = 0; j < n - 1 - i; j++) {`,
+`            if (arr[j] > arr[j + 1]) {`,
+`                // 交換`,
+`                let temp = arr[j];`,
+`                arr[j] = arr[j + 1];`,
+`                arr[j + 1] = temp;`,
+`            }`,
+`        }`,
+`    }`,
+`    return arr;`,
+`}`
+        ];
+
+        function bubbleSortSteps(arr) {
+            const steps = [];
+            let n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - 1 - i; j++) {
+                    steps.push({arr:arr.slice(), i, j, comparing:true});
+                    if (arr[j] > arr[j + 1]) {
+                        [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
+                        steps.push({arr:arr.slice(), i, j, swapping:true});
+                    }
+                }
+            }
+            return steps;
+        }
+
+        function renderBars(arr) {
+            const container = document.getElementById('animation');
+            container.innerHTML = '';
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+            arr.forEach(v => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = (v * 10) + 'px';
+                bar.textContent = v;
+                barContainer.appendChild(bar);
+            });
+            container.appendChild(barContainer);
+        }
+
+        function renderCode(highlightLine) {
+            const codeDiv = document.getElementById('code');
+            codeDiv.innerHTML = '';
+            codeLines.forEach((line, idx) => {
+                const span = document.createElement('span');
+                if (idx === highlightLine) span.className = 'highlight';
+                span.textContent = line + '\n';
+                codeDiv.appendChild(span);
+            });
+        }
+
+        let steps = [];
+        let idx = 0;
+
+        function startSorting() {
+            const input = document.getElementById('inputArray').value;
+            let arr = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (arr.length === 0) return;
+            steps = bubbleSortSteps(arr.slice());
+            idx = 0;
+            renderStep();
+        }
+
+        function renderStep() {
+            if (idx >= steps.length) return;
+            const step = steps[idx];
+            renderBars(step.arr);
+            if (step.comparing) renderCode(4);
+            else if (step.swapping) renderCode(6);
+        }
+
+        document.getElementById('sortBtn').addEventListener('click', startSorting);
+
+        // add next step control
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = '下一步';
+        nextBtn.style.marginLeft = '10px';
+        document.querySelector('div').appendChild(nextBtn);
+        nextBtn.addEventListener('click', () => {
+            if (idx < steps.length - 1) {
+                idx++;
+                renderStep();
+            }
+        });
+
+        // reset button
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = '重置';
+        resetBtn.style.marginLeft = '10px';
+        document.querySelector('div').appendChild(resetBtn);
+        resetBtn.addEventListener('click', () => {
+            idx = 0;
+            steps = [];
+            document.getElementById('animation').innerHTML = '';
+            document.getElementById('code').innerHTML = '';
+        });
+    </script>
+    <div id="code" class="code-block"></div>
+
+    <h2>結論</h2>
+    <p>雖然氣泡排序效率並不高，但因其直觀的機制，常用於教學或當作更複雜演算法前的入門示例。</p>
+</body>
+</html>
+    <h2>結論</h2>
+    <p>雖然氣泡排序效率並不高，但因其直觀的機制，常用於教學或當作更複雜演算法前的入門示例。</p>
+</body>
+</html>
