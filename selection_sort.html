@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>選擇排序法說明</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; padding: 20px; background-color: #fcfcfc; }
+        h1, h2 { color: #2c3e50; }
+        a { text-decoration: none; color: #3498db; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+        pre { background: #f4f4f4; padding: 15px; border-radius: 5px; border-left: 5px solid #3498db; overflow-x: auto; }
+        .code-block { white-space: pre; font-family: Consolas, monospace; background:#f9f2f4; padding:10px; border-radius: 4px; border: 1px solid #ddd; }
+        .bar-container { display: flex; align-items: flex-end; height: 180px; margin-top: 20px; background: #fff; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .bar { width: 40px; margin: 0 5px; background-color: #3498db; text-align: center; color: white; transition: all 0.3s ease; border-radius: 3px 3px 0 0; font-weight: bold; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;}
+        .highlight { background-color: #f1c40f; color: #333; transform: scaleY(1.05); }
+        .code-highlight { background-color: #fffacd; font-weight: bold; width: 100%; display: block; }
+        button { padding: 8px 15px; cursor: pointer; background: #2c3e50; color: white; border: none; border-radius: 4px; transition: background 0.3s; }
+        button:hover { background: #34495e; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 250px; }
+    </style>
+</head>
+<body>
+    <p><a href="index.html">← 回主選單</a></p>
+    
+    <h1>選擇排序法 (Selection Sort)</h1>
+    <p>選擇排序法的原理是每一輪從未排序的區域中找出最小（或最大）的元素，放到已排序區域的末尾。運作方式類似於整理撲克牌時，每次都從桌上找出最小的一張牌拿到手上。</p>
+
+    <h2>基本想法</h2>
+    <ol>
+        <li>將序列分為「已排序」與「未排序」兩部分。初始時，「已排序」部分為空。</li>
+        <li>從「未排序」部分掃描，找出最小值的索引。</li>
+        <li>將該最小值與「未排序」部分的第一個元素交換。</li>
+        <li>此時「已排序」部分增加一個元素，「未排序」部分減少一個元素。</li>
+        <li>重複上述步驟，直到所有元素都已排序。</li>
+    </ol>
+
+    <h2>互動式示範</h2>
+    <p>輸入數字並點選排序觀看過程。</p>
+    <div id="controls">
+        <input type="text" id="inputArray" value="5,2,9,1,5,6">
+        <button id="sortBtn">排序</button>
+        <button id="nextBtn" style="margin-left:10px;">下一步</button>
+        <button id="resetBtn" style="margin-left:10px;">重置</button>
+    </div>
+    <div id="animation"></div>
+    <div id="code" class="code-block" style="margin-top:20px;"></div>
+
+    <script>
+        const codeLines = [
+            `function selectionSort(arr) {`,
+            `    let n = arr.length;`,
+            `    for (let i = 0; i < n - 1; i++) {`,
+            `        let minIdx = i;`,
+            `        for (let j = i + 1; j < n; j++) {`,
+            `            if (arr[j] < arr[minIdx]) {`,
+            `                minIdx = j;`,
+            `            }`,
+            `        }`,
+            `        if (minIdx !== i) {`,
+            `            // 交換`,
+            `            let temp = arr[i];`,
+            `            arr[i] = arr[minIdx];`,
+            `            arr[minIdx] = temp;`,
+            `        }`,
+            `    }`,
+            `    return arr;`,
+            `}`
+        ];
+
+        function getSortSteps(initialArr) {
+            const steps = [];
+            const arr = initialArr.slice();
+            let n = arr.length;
+            for (let i = 0; i < n - 1; i++) {
+                let minIdx = i;
+                for (let j = i + 1; j < n; j++) {
+                    // 比較: 高亮目前檢查的 j 和目前的 minIdx
+                    steps.push({arr: arr.slice(), highlight: [j, minIdx], line: 5});
+                    if (arr[j] < arr[minIdx]) {
+                        minIdx = j;
+                        // 找到更小的: 更新 minIdx
+                        steps.push({arr: arr.slice(), highlight: [minIdx], line: 6});
+                    }
+                }
+                if (minIdx !== i) {
+                    [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
+                    // 交換
+                    steps.push({arr: arr.slice(), highlight: [i, minIdx], line: 11});
+                }
+            }
+            steps.push({arr: arr.slice(), highlight: [], line: 16}); // 完成
+            return steps;
+        }
+
+        let steps = [];
+        let currentStep = 0;
+
+        function render(stepIndex) {
+            if (!steps[stepIndex]) return;
+            const { arr, highlight, line } = steps[stepIndex];
+            
+            // Render Bars
+            const animDiv = document.getElementById('animation');
+            animDiv.innerHTML = '';
+            const container = document.createElement('div');
+            container.className = 'bar-container';
+            arr.forEach((val, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = (val * 15) + 'px';
+                bar.innerText = val;
+                if (highlight.includes(idx)) bar.classList.add('highlight');
+                container.appendChild(bar);
+            });
+            animDiv.appendChild(container);
+
+            // Render Code
+            const codeDiv = document.getElementById('code');
+            codeDiv.innerHTML = codeLines.map((l, i) => 
+                `<div class="${i === line ? 'code-highlight' : ''}">${l}</div>`
+            ).join('');
+        }
+
+        document.getElementById('sortBtn').onclick = () => {
+            const input = document.getElementById('inputArray').value;
+            const arr = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+            if(arr.length === 0) return;
+            steps = getSortSteps(arr);
+            currentStep = 0;
+            render(currentStep);
+        };
+        document.getElementById('nextBtn').onclick = () => { 
+            if(currentStep < steps.length - 1) render(++currentStep); 
+        };
+        document.getElementById('resetBtn').onclick = () => { 
+            document.getElementById('animation').innerHTML = ''; 
+            document.getElementById('code').innerHTML = ''; 
+            steps=[]; 
+        };
+    </script>
+</body>
+</html>
