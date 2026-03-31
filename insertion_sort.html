@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>選擇排序法說明</title>
+    <title>插入排序法說明</title>
     <style>
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -98,9 +98,13 @@
         }
         .bar:hover::after { opacity: 1; }
         .highlight { 
-            background: linear-gradient(135deg, #f1c40f, #f39c12); 
+            background: linear-gradient(135deg, #e74c3c, #c0392b); 
             transform: scaleY(1.1) scaleX(1.05); 
-            box-shadow: 0 8px 16px rgba(241, 196, 15, 0.4);
+            box-shadow: 0 8px 16px rgba(231, 76, 60, 0.4);
+        }
+        .sorted { 
+            background: linear-gradient(135deg, #27ae60, #229954); 
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
         }
         .code-highlight { 
             background: rgba(255, 250, 205, 0.3); 
@@ -168,74 +172,65 @@
 <body>
     <a href="index.html" class="back-link">← 回主選單</a>
     <div class="container">
-    
-    <h1>選擇排序法 (Selection Sort)</h1>
-    <p>選擇排序法的原理是每一輪從未排序的區域中找出最小（或最大）的元素，放到已排序區域的末尾。運作方式類似於整理撲克牌時，每次都從桌上找出最小的一張牌拿到手上。</p>
+
+    <h1>插入排序法 (Insertion Sort)</h1>
+    <p>插入排序是一種簡單的排序演算法，其原理類似於整理撲克牌。從第二個元素開始，將每個元素插入到已排序序列的適當位置。</p>
 
     <h2>基本想法</h2>
     <ol>
-        <li>將序列分為「已排序」與「未排序」兩部分。初始時，「已排序」部分為空。</li>
-        <li>從「未排序」部分掃描，找出最小值的索引。</li>
-        <li>將該最小值與「未排序」部分的第一個元素交換。</li>
-        <li>此時「已排序」部分增加一個元素，「未排序」部分減少一個元素。</li>
-        <li>重複上述步驟，直到所有元素都已排序。</li>
+        <li>將陣列分成已排序和未排序兩部分，初始時第一個元素視為已排序。</li>
+        <li>從第二個元素開始，取出該元素。</li>
+        <li>在已排序部分中，從右向左比較，找到適當位置插入。</li>
+        <li>重複以上步驟，直到所有元素都排序完成。</li>
     </ol>
 
+    <h2>時間複雜度</h2>
+    <p>插入排序的平均與最壞情況時間複雜度皆為 <strong>O(n<sup>2</sup>)</strong>，最佳情況（已排列的資料）為 <strong>O(n)</strong>。</p>
+
     <h2>互動式示範</h2>
-    <p>輸入數字並點選排序觀看過程。</p>
+    <p>輸入一組以逗號分隔的數字，點選「排序」按鈕即可觀看插入排序依步驟運作的動畫。</p>
     <div id="controls">
-        <input type="text" id="inputArray" value="5,2,9,1,5,6">
+        <input type="text" id="inputArray" placeholder="例如：5,2,9,1,5,6" value="5,2,9,1,5,6">
         <button id="sortBtn">排序</button>
         <button id="nextBtn" style="margin-left:10px;">下一步</button>
         <button id="resetBtn" style="margin-left:10px;">重置</button>
     </div>
     <div id="animation"></div>
-    <div id="code" class="code-block" style="margin-top:20px;"></div>
+    <div id="code" class="code-block"></div>
 
     <script>
         const codeLines = [
-            `function selectionSort(arr) {`,
+            `function insertionSort(arr) {`,
             `    let n = arr.length;`,
-            `    for (let i = 0; i < n - 1; i++) {`,
-            `        let minIdx = i;`,
-            `        for (let j = i + 1; j < n; j++) {`,
-            `            if (arr[j] < arr[minIdx]) {`,
-            `                minIdx = j;`,
-            `            }`,
+            `    for (let i = 1; i < n; i++) {`,
+            `        let key = arr[i];`,
+            `        let j = i - 1;`,
+            `        while (j >= 0 && arr[j] > key) {`,
+            `            arr[j + 1] = arr[j];`,
+            `            j--;`,
             `        }`,
-            `        if (minIdx !== i) {`,
-            `            // 交換`,
-            `            let temp = arr[i];`,
-            `            arr[i] = arr[minIdx];`,
-            `            arr[minIdx] = temp;`,
-            `        }`,
+            `        arr[j + 1] = key;`,
             `    }`,
             `    return arr;`,
             `}`
         ];
 
-        function getSortSteps(initialArr) {
+        function insertionSortSteps(arr) {
             const steps = [];
-            const arr = initialArr.slice();
             let n = arr.length;
-            for (let i = 0; i < n - 1; i++) {
-                let minIdx = i;
-                for (let j = i + 1; j < n; j++) {
-                    // 比較: 高亮目前檢查的 j 和目前的 minIdx
-                    steps.push({arr: arr.slice(), highlight: [j, minIdx], line: 5});
-                    if (arr[j] < arr[minIdx]) {
-                        minIdx = j;
-                        // 找到更小的: 更新 minIdx
-                        steps.push({arr: arr.slice(), highlight: [minIdx], line: 6});
-                    }
+            for (let i = 1; i < n; i++) {
+                let key = arr[i];
+                let j = i - 1;
+                steps.push({arr: arr.slice(), highlight: [i], sorted: Array.from({length: i}, (_, idx) => idx), line: 3});
+                while (j >= 0 && arr[j] > key) {
+                    steps.push({arr: arr.slice(), highlight: [j, j+1], sorted: Array.from({length: i}, (_, idx) => idx), line: 5});
+                    arr[j + 1] = arr[j];
+                    j--;
+                    steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i}, (_, idx) => idx), line: 6});
                 }
-                if (minIdx !== i) {
-                    [arr[i], arr[minIdx]] = [arr[minIdx], arr[i]];
-                    // 交換
-                    steps.push({arr: arr.slice(), highlight: [i, minIdx], line: 11});
-                }
+                arr[j + 1] = key;
+                steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), line: 9});
             }
-            steps.push({arr: arr.slice(), highlight: [], line: 16}); // 完成
             return steps;
         }
 
@@ -244,47 +239,63 @@
 
         function render(stepIndex) {
             if (!steps[stepIndex]) return;
-            const { arr, highlight, line } = steps[stepIndex];
+            const { arr, highlight, sorted, line } = steps[stepIndex];
             
             // Render Bars
             const animDiv = document.getElementById('animation');
             animDiv.innerHTML = '';
-            const container = document.createElement('div');
-            container.className = 'bar-container';
-            arr.forEach((val, idx) => {
+            const barContainer = document.createElement('div');
+            barContainer.className = 'bar-container';
+            arr.forEach((v, idx) => {
                 const bar = document.createElement('div');
                 bar.className = 'bar';
-                bar.style.height = (val * 15) + 'px';
-                bar.innerText = val;
                 if (highlight.includes(idx)) bar.classList.add('highlight');
-                container.appendChild(bar);
+                if (sorted && sorted.includes(idx)) bar.classList.add('sorted');
+                bar.style.height = (v * 15) + 'px';
+                bar.textContent = v;
+                barContainer.appendChild(bar);
             });
-            animDiv.appendChild(container);
-
+            animDiv.appendChild(barContainer);
+            
             // Render Code
             const codeDiv = document.getElementById('code');
-            codeDiv.innerHTML = codeLines.map((l, i) => 
-                `<div class="${i === line ? 'code-highlight' : ''}">${l}</div>`
-            ).join('');
+            codeDiv.innerHTML = '';
+            codeLines.forEach((line, idx) => {
+                const div = document.createElement('div');
+                if (idx === line) div.className = 'code-highlight';
+                div.textContent = line;
+                codeDiv.appendChild(div);
+            });
         }
 
-        document.getElementById('sortBtn').onclick = () => {
+        function startSorting() {
             const input = document.getElementById('inputArray').value;
-            const arr = input.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
-            if(arr.length === 0) return;
-            steps = getSortSteps(arr);
+            let arr = input.split(',').map(x => parseInt(x.trim())).filter(x => !isNaN(x));
+            if (arr.length === 0) return;
+            steps = insertionSortSteps(arr.slice());
             currentStep = 0;
             render(currentStep);
-        };
-        document.getElementById('nextBtn').onclick = () => { 
-            if(currentStep < steps.length - 1) render(++currentStep); 
-        };
-        document.getElementById('resetBtn').onclick = () => { 
-            document.getElementById('animation').innerHTML = ''; 
-            document.getElementById('code').innerHTML = ''; 
-            steps=[]; 
-        };
+        }
+
+        document.getElementById('sortBtn').addEventListener('click', startSorting);
+        
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                render(currentStep);
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            currentStep = 0;
+            steps = [];
+            document.getElementById('animation').innerHTML = '';
+            document.getElementById('code').innerHTML = '';
+        });
     </script>
+
+    <h2>結論</h2>
+    <p>插入排序適合用於小型資料集或幾乎已排序的資料，因其在最佳情況下效率較高。</p>
     </div>
 </body>
 </html>
