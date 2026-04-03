@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合併排序法說明</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            line-height: 1.8; 
+            padding: 40px 20px; 
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); 
+            min-height: 100vh; 
+            color: #f8fafc; 
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
+        }
+        p, li { color: rgba(255, 255, 255, 0.8); }
+
+        h1 { font-size: 3em; font-weight: 800; text-align: center; text-shadow: 0 0 20px rgba(52,152,219,0.5); }
+        h2 { font-size: 1.6em; color: #3498db; border-left: 5px solid #3498db; padding-left: 15px; text-align: left; }
+        .back-link { 
+            position: fixed; top: 20px; left: 20px; background: rgba(255,255,255,0.1); 
+            padding: 10px 20px; border-radius: 25px; z-index: 1000; color: #fff; text-decoration: none;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .bar-container { 
+            display: flex; align-items: flex-end; height: 250px; margin: 30px 0; 
+            background: rgba(0,0,0,0.2); border-radius: 20px; padding: 30px; gap: 12px;
+        }
+        .bar { 
+            flex: 1; background: linear-gradient(180deg, #3498db, #2980b9); 
+            text-align: center; color: white; transition: all 0.3s ease; 
+            border-radius: 8px 8px 4px 4px; font-weight: bold;
+            display: flex; align-items: flex-end; justify-content: center; padding-bottom: 5px;
+            box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+        }
+        .highlight { background: linear-gradient(180deg, #ff4757, #ff6b81) !important; box-shadow: 0 0 25px rgba(255,71,87,0.7) !important; }
+        .finished { 
+            background: linear-gradient(180deg, #2ed573, #7bed9f) !important; 
+            box-shadow: 0 0 25px rgba(46,213,115,0.6) !important;
+        }
+        .code-keyword { color: #bb86fc; font-weight: bold; }
+        .code-number { color: #ffb74d; }
+        .code-builtin { color: #03dac6; }
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border-color: rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 50px rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5); }
+            100% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border-color: rgba(255, 255, 255, 0.1); }
+        }
+        .finished-bg {
+            animation: glow-pulse 2s infinite ease-in-out;
+        }
+        .in-range { border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.2); }
+        .code-block { 
+            white-space: pre; font-family: 'Fira Code', monospace; 
+            background: #0d1117; color: #c9d1d9; padding: 25px; 
+            border-radius: 15px; margin-top: 20px; border: 1px solid #30363d;
+            position: relative;
+        }
+        .code-block::before {
+            content: "● ● ●";
+            color: #484f58;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 12px;
+        }
+        .code-highlight { background: rgba(52,152,219,0.2); border-left: 4px solid #3498db; padding-left: 10px; }
+        #controls { 
+            display: flex; gap: 15px; margin: 40px 0; padding: 25px;
+            background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            justify-content: center; align-items: center; flex-wrap: wrap;
+        }
+        #controls button { padding: 12px 25px; border-radius: 12px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; cursor: pointer; transition: 0.3s; }
+        #controls button:hover { transform: translateY(-3px); background: rgba(255,255,255,0.2); }
+        #sortBtn { background: #3498db !important; }
+        #autoPlayBtn { background: #2ecc71 !important; }
+        #resetBtn { background: #e74c3c !important; }
+        input[type="text"] { padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: #fff; width: 250px; }
+        input[type="range"] { -webkit-appearance: none; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #3498db; border-radius: 50%; }
+    </style>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <a href="index.html" class="back-link">← 回主選單</a>
+    <div class="container">
+        <h1>合併排序法 (Merge Sort)</h1>
+        <p>合併排序法採用「分而治之」策略。它將問題拆解成最小單位後，再依序合併回排序好的序列。</p>
+        
+        <div id="controls">
+            <input type="text" id="inputArray" value="38, 27, 43, 3, 9, 82, 10">
+            <button id="sortBtn">初始化</button>
+            <button id="nextBtn">下一步</button>
+            <button id="autoPlayBtn">自動播放</button>
+            <button id="resetBtn">重置</button>
+            <span>速度：</span>
+            <input type="range" id="speed" min="50" max="1000" value="500" style="width: 150px;">
+        </div>
+
+        <div id="animation"></div>
+        <div id="code" class="code-block"></div>
+
+        <h2>基本步驟</h2>
+        <ol>
+            <li>將陣列從中間切開，分為左右兩半。</li>
+            <li>遞迴地對左右兩半進行合併排序，直到每段只有一個元素。</li>
+            <li>開始合併：比較兩個已排序子陣列的首位，將較小的放入暫存陣列。</li>
+            <li>重複步驟 3，直到所有元素合併完成。</li>
+        </ol>
+
+        <h2>時間複雜度</h2>
+        <p>合併排序法的平均與最壞情況時間複雜度皆為 <strong>O(n log n)</strong>。它的效能非常穩定，不論輸入資料的原始順序為何，執行次數都大致相同。</p>
+
+        <h2>結論</h2>
+        <p>合併排序法是典型的分治法應用，雖然它需要額外的空間來存儲合併過程中的數據（空間複雜度為 O(n)），但穩定的時間表現使其在處理大型鏈結串列或外部排序時非常受歡迎。</p>
+    </div>
+
+    <script>
+        const codeLines = [
+            "function mergeSort(arr, l, r) {",
+            "  if (l < r) {",
+            "    let m = Math.floor((l + r) / 2);",
+            "    mergeSort(arr, l, m);",
+            "    mergeSort(arr, m + 1, r);",
+            "    merge(arr, l, m, r);",
+            "  }",
+            "}",
+            "function merge(arr, l, m, r) {",
+            "  let n1 = m - l + 1, n2 = r - m;",
+            "  let L = arr.slice(l, m + 1), R = arr.slice(m + 1, r + 1);",
+            "  let i = 0, j = 0, k = l;",
+            "  while (i < n1 && j < n2) {",
+            "    if (L[i] <= R[j]) arr[k++] = L[i++];",
+            "    else arr[k++] = R[j++];",
+            "  }",
+            "  while (i < n1) arr[k++] = L[i++];",
+            "  while (j < n2) arr[k++] = R[j++];",
+            "}"
+        ];
+
+        function highlightJS(text) {
+            return text
+                .replace(/\b(function|let|for|if|while|return)\b/g, '<span class="code-keyword">$1</span>')
+                .replace(/\b(\d+)\b/g, '<span class="code-number">$1</span>')
+                .replace(/\b(Math|floor|slice|length)\b/g, '<span class="code-builtin">$1</span>');
+        }
+
+        let steps = [];
+        let currentStep = 0;
+        let isPlaying = false;
+        let timer = null;
+
+        function generateSteps(initialArr) {
+            const steps = [];
+            const arr = [...initialArr];
+
+            function merge(l, m, r) {
+                let L = arr.slice(l, m + 1);
+                let R = arr.slice(m + 1, r + 1);
+                let i = 0, j = 0, k = l;
+
+                while (i < L.length && j < R.length) {
+                    // 比較階段
+                    steps.push({ 
+                        arr: [...arr], 
+                        highlight: [l + i, m + 1 + j], 
+                        range: [l, r], 
+                        line: 12 
+                    });
+                    if (L[i] <= R[j]) {
+                        arr[k] = L[i];
+                        i++;
+                    } else {
+                        arr[k] = R[j];
+                        j++;
+                    }
+                    // 寫入階段
+                    steps.push({ 
+                        arr: [...arr], 
+                        highlight: [k], 
+                        range: [l, r], 
+                        line: 13 
+                    });
+                    k++;
+                }
+                while (i < L.length) {
+                    arr[k] = L[i];
+                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], line: 16 });
+                    i++; k++;
+                }
+                while (j < R.length) {
+                    arr[k] = R[j];
+                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], line: 17 });
+                    j++; k++;
+                }
+            }
+
+            function sort(l, r) {
+                if (l >= r) return;
+                let m = Math.floor((l + r) / 2);
+                steps.push({ arr: [...arr], highlight: [], range: [l, r], line: 2 });
+                sort(l, m);
+                sort(m + 1, r);
+                merge(l, m, r);
+            }
+
+            sort(0, arr.length - 1);
+            steps.push({ arr: [...arr], highlight: [], range: [], isFinished: true, line: 0 });
+            return steps;
+        }
+
+        function render(stepIdx) {
+            if (!steps[stepIdx]) return;
+            const { arr, highlight, range, line, isFinished } = steps[stepIdx];
+            const animDiv = document.getElementById('animation');
+            
+            const containerDiv = document.querySelector('.container');
+            if (isFinished) containerDiv.classList.add('finished-bg');
+            else containerDiv.classList.remove('finished-bg');
+
+            animDiv.innerHTML = '';
+
+            const container = document.createElement('div');
+            container.className = 'bar-container';
+            
+            const maxVal = Math.max(...arr);
+
+            arr.forEach((v, idx) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                if (isFinished) bar.classList.add('finished');
+                else if (highlight.includes(idx)) bar.classList.add('highlight');
+                if (range && idx >= range[0] && idx <= range[1]) bar.classList.add('in-range');
+                
+                // 動態比例計算高度 (容器 250px - 內邊距)
+                const height = (v / maxVal) * 200;
+                bar.style.height = `${height}px`;
+                bar.textContent = v;
+                container.appendChild(bar);
+            });
+            animDiv.appendChild(container);
+
+            const codeDiv = document.getElementById('code');
+            codeDiv.innerHTML = '';
+            codeLines.forEach((codeText, idx) => {
+                const div = document.createElement('div');
+                if (idx === line) div.className = 'code-highlight';
+                div.innerHTML = highlightJS(codeText);
+                codeDiv.appendChild(div);
+            });
+        }
+
+        function autoPlay() {
+            if (currentStep < steps.length - 1 && isPlaying) {
+                currentStep++;
+                render(currentStep);
+                const speed = 1050 - document.getElementById('speed').value;
+                timer = setTimeout(autoPlay, speed);
+            } else {
+                stopAutoPlay();
+            }
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            clearTimeout(timer);
+            document.getElementById('autoPlayBtn').textContent = '自動播放';
+        }
+
+        function initialize() {
+            const val = document.getElementById('inputArray').value;
+            const arr = val.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+            if (arr.length === 0) return;
+            steps = generateSteps(arr);
+            currentStep = 0;
+            render(currentStep);
+        }
+
+        document.getElementById('sortBtn').onclick = () => {
+            stopAutoPlay();
+            initialize();
+        };
+
+        document.getElementById('nextBtn').onclick = () => {
+            stopAutoPlay();
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                render(currentStep);
+            }
+        };
+
+        document.getElementById('autoPlayBtn').onclick = () => {
+            if (isPlaying) {
+                stopAutoPlay();
+            } else {
+                if (steps.length === 0) initialize();
+                isPlaying = true;
+                document.getElementById('autoPlayBtn').textContent = '停止播放';
+                autoPlay();
+            }
+        };
+
+        document.getElementById('resetBtn').onclick = () => {
+            stopAutoPlay();
+            steps = [];
+            currentStep = 0;
+            document.getElementById('animation').innerHTML = '';
+            document.getElementById('code').innerHTML = '';
+        };
+    </script>
+</body>
+</html>

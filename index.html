@@ -8,13 +8,64 @@
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             line-height: 1.8; 
-            padding: 40px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 40px;
+            background: #667eea; 
+            overflow-x: hidden;
             min-height: 100vh; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             color: #333;
+        }
+        /* 動態背景容器 */
+        .bg-glow-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* 光暈氣泡基礎樣式 */
+        .glow-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.5;
+            animation: blob-float 20s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+        }
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(52, 152, 219, 0.6); /* 亮藍色 */
+            top: -10%;
+            left: -10%;
+        }
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: rgba(240, 147, 251, 0.5); /* 淺紫色 */
+            bottom: -10%;
+            right: -10%;
+            animation-duration: 25s;
+            animation-delay: -5s;
+        }
+        .blob-3 {
+            width: 400px;
+            height: 400px;
+            background: rgba(118, 75, 162, 0.6); /* 深紫色 */
+            top: 30%;
+            left: 40%;
+            animation-duration: 30s;
+            animation-delay: -10s;
+        }
+        @keyframes blob-float {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -30px) scale(1.1); }
+            66% { transform: translate(-20px, 50px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
         }
         h1 { 
             color: #fff; 
@@ -30,19 +81,22 @@
             flex-wrap: wrap; 
             justify-content: center; 
             max-width: 1200px;
+            perspective: 1000px; /* 增加透視感 */
         }
         .menu-card { 
-            background: rgba(255, 255, 255, 0.95); 
+            background: rgba(255, 255, 255, 0.15); /* 極致透明度 */
             padding: 40px; 
             border-radius: 20px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); 
             width: 300px; 
             text-align: center; 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px); /* 增強磨砂感 */
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3); /* 亮色邊框 */
             position: relative;
             overflow: hidden;
+            transform-style: preserve-3d;
         }
         .menu-card::before {
             content: '';
@@ -51,24 +105,26 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s ease;
         }
         .menu-card:hover::before {
             left: 100%;
         }
         .menu-card:hover { 
-            transform: translateY(-10px) scale(1.05); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            transform: translateY(-20px) rotateX(5deg) scale(1.05); /* 3D 傾斜與位移 */
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4), 0 0 20px rgba(255,255,255,0.2);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         .menu-card h2 { 
-            color: #2c3e50; 
+            color: #fff; /* 改為白色以配合透明背景 */
             margin-top: 0; 
             font-size: 1.6em;
             margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .menu-card p { 
-            color: #7f8c8d; 
+            color: rgba(255, 255, 255, 0.85); /* 淺灰色文字 */
             font-size: 1em; 
             line-height: 1.6;
             margin-bottom: 25px;
@@ -117,9 +173,16 @@
         .menu-card:nth-child(1) { animation: fadeInUp 0.5s ease-out 0.1s both; }
         .menu-card:nth-child(2) { animation: fadeInUp 0.5s ease-out 0.2s both; }
         .menu-card:nth-child(3) { animation: fadeInUp 0.5s ease-out 0.3s both; }
+        .menu-card:nth-child(4) { animation: fadeInUp 0.5s ease-out 0.4s both; }
     </style>
 </head>
 <body>
+    <!-- 背景動態光暈 -->
+    <div class="bg-glow-container">
+        <div class="glow-blob blob-1"></div>
+        <div class="glow-blob blob-2"></div>
+        <div class="glow-blob blob-3"></div>
+    </div>
     <h1>排序演算法教學</h1>
     <div class="menu-container">
         <div class="menu-card">
@@ -136,6 +199,11 @@
             <h2>插入排序法</h2>
             <p>將元素逐步插入到已排序序列的適當位置。</p>
             <a href="insertion_sort.html" class="btn">進入教學</a>
+        </div>
+        <div class="menu-card">
+            <h2>合併排序法</h2>
+            <p>使用分而治之法，將陣列拆解後再重新合併排序。</p>
+            <a href="merge_sort.html" class="btn">進入教學</a>
         </div>
     </div>
 </body>

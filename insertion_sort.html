@@ -8,34 +8,26 @@
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             line-height: 1.8; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            padding: 40px 20px; 
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); 
             min-height: 100vh; 
-            color: #333; 
+            color: #f8fafc; 
         }
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.3s;
         }
-        h1, h2 { 
-            color: #2c3e50; 
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        h1 { font-size: 2.5em; margin-top: 0; }
-        h2 { font-size: 1.8em; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-        a { 
-            text-decoration: none; 
-            color: #3498db; 
-            font-weight: bold; 
-            transition: color 0.3s;
-        }
-        a:hover { color: #2980b9; }
+        p, li { color: rgba(255, 255, 255, 0.8); }
+
+        h1 { font-size: 3em; font-weight: 800; text-align: center; text-shadow: 0 0 20px rgba(52,152,219,0.5); }
+        h2 { font-size: 1.6em; color: #3498db; border-left: 5px solid #3498db; padding-left: 15px; margin-top: 40px; }
         pre { 
             background: #f8f9fa; 
             padding: 20px; 
@@ -47,127 +39,116 @@
         .code-block { 
             white-space: pre; 
             font-family: 'Fira Code', Consolas, monospace; 
-            background: #2d3748; 
-            color: #e2e8f0; 
+            background: #0d1117; 
+            color: #c9d1d9; 
             padding: 20px; 
-            border-radius: 10px; 
-            border: 1px solid #4a5568; 
+            border-radius: 15px; 
+            border: 1px solid #30363d; 
             margin-top: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .code-block::before {
+            content: "● ● ●";
+            color: #484f58;
+            margin-bottom: 10px;
+            display: block;
+            font-size: 12px;
         }
         .bar-container { 
             display: flex; 
             align-items: flex-end; 
-            height: 200px; 
+            height: 250px; 
             margin: 30px 0; 
-            background: #f7fafc; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 10px; 
-            padding: 20px; 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.2); 
+            border-radius: 20px; 
+            padding: 30px; 
+            gap: 12px;
         }
         .bar { 
-            width: 50px; 
-            margin: 0 8px; 
-            background: linear-gradient(135deg, #3498db, #2980b9); 
+            flex: 1;
+            background: linear-gradient(180deg, #3498db, #2980b9); 
             text-align: center; 
             color: white; 
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            border-radius: 5px 5px 0 0; 
+            border-radius: 8px 8px 4px 4px; 
             font-weight: bold; 
             display: flex; 
             align-items: flex-end; 
             justify-content: center; 
             padding-bottom: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
             position: relative;
         }
-        .bar::after {
-            content: '';
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #2c3e50;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .bar:hover::after { opacity: 1; }
         .highlight { 
-            background: linear-gradient(135deg, #e74c3c, #c0392b); 
-            transform: scaleY(1.1) scaleX(1.05); 
-            box-shadow: 0 8px 16px rgba(231, 76, 60, 0.4);
+            background: linear-gradient(180deg, #ff4757, #ff6b81) !important; 
+            box-shadow: 0 0 25px rgba(255, 71, 87, 0.7) !important;
         }
         .sorted { 
-            background: linear-gradient(135deg, #27ae60, #229954); 
+            background: linear-gradient(180deg, #3498db, #2980b9); 
             box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
         }
+        .finished { 
+            background: linear-gradient(180deg, #2ed573, #7bed9f) !important; 
+            box-shadow: 0 0 25px rgba(46, 213, 115, 0.6) !important;
+        }
+        .code-keyword { color: #bb86fc; font-weight: bold; }
+        .code-number { color: #ffb74d; }
+        .code-builtin { color: #03dac6; }
+        @keyframes glow-pulse {
+            0% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border-color: rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 0 50px rgba(46, 213, 115, 0.3); border-color: rgba(46, 213, 115, 0.5); }
+            100% { box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8); border-color: rgba(255, 255, 255, 0.1); }
+        }
+        .finished-bg {
+            animation: glow-pulse 2s infinite ease-in-out;
+        }
         .code-highlight { 
-            background: rgba(255, 250, 205, 0.3); 
-            border-left: 4px solid #f1c40f; 
+            background: rgba(52, 152, 219, 0.2); 
+            border-left: 4px solid #3498db; 
             padding-left: 16px; 
             margin: 0 -20px; 
             width: calc(100% + 40px);
-        }
-        button { 
-            padding: 12px 24px; 
-            cursor: pointer; 
-            background: linear-gradient(135deg, #2c3e50, #34495e); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            transition: all 0.3s ease; 
-            font-weight: bold;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        button:hover { 
-            background: linear-gradient(135deg, #34495e, #2c3e50); 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
-        button:active { transform: translateY(0); }
-        input { 
-            padding: 12px; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 8px; 
-            width: 300px; 
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        input:focus { 
-            outline: none; 
-            border-color: #3498db; 
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
         #controls { 
             display: flex; 
             gap: 15px; 
             align-items: center; 
-            margin: 30px 0;
+            margin: 40px 0; padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             flex-wrap: wrap;
+            justify-content: center;
         }
-        ol { 
-            background: #f8f9fa; 
-            padding: 20px 30px; 
-            border-radius: 10px; 
-            border-left: 5px solid #3498db;
+        #controls button {
+            padding: 12px 25px; border-radius: 12px; font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.1); color: #fff;
         }
-        li { margin-bottom: 10px; }
+        #controls button:hover { transform: translateY(-3px); background: rgba(255,255,255,0.2); }
+        #sortBtn { background: #3498db !important; color: #fff !important; border: none !important; }
+        #autoPlayBtn { background: #2ecc71 !important; color: #fff !important; border: none !important; }
+        #resetBtn { background: #95a5a6 !important; color: #fff !important; border: none !important; }
+        input[type="text"] { padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: #fff; width: 250px; }
+
+        /* Modern Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none; width: 150px; height: 6px;
+            background: rgba(255,255,255,0.1); border-radius: 5px; outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 16px; height: 16px;
+            background: #3498db; border-radius: 50%; cursor: pointer;
+        }
+
         .back-link { 
-            position: fixed; 
-            top: 20px; 
-            left: 20px; 
-            background: rgba(255, 255, 255, 0.9); 
-            padding: 10px 20px; 
-            border-radius: 25px; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
+            position: fixed; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); 
+            padding: 10px 20px; border-radius: 25px; z-index: 1000; color: #fff; text-decoration: none;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); font-weight: bold;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
     <a href="index.html" class="back-link">← 回主選單</a>
@@ -192,8 +173,11 @@
     <div id="controls">
         <input type="text" id="inputArray" placeholder="例如：5,2,9,1,5,6" value="5,2,9,1,5,6">
         <button id="sortBtn">排序</button>
-        <button id="nextBtn" style="margin-left:10px;">下一步</button>
-        <button id="resetBtn" style="margin-left:10px;">重置</button>
+        <button id="nextBtn">下一步</button>
+        <button id="autoPlayBtn">自動播放</button>
+        <button id="resetBtn">重置</button>
+        <span style="color: #2c3e50; font-weight: bold;">速度：</span>
+        <input type="range" id="speed" min="50" max="1000" value="500" style="width: 150px;">
     </div>
     <div id="animation"></div>
     <div id="code" class="code-block"></div>
@@ -215,6 +199,13 @@
             `}`
         ];
 
+        function highlightJS(text) {
+            return text
+                .replace(/\b(function|let|for|if|while|return)\b/g, '<span class="code-keyword">$1</span>')
+                .replace(/\b(\d+)\b/g, '<span class="code-number">$1</span>')
+                .replace(/\b(Math|floor|slice|length)\b/g, '<span class="code-builtin">$1</span>');
+        }
+
         function insertionSortSteps(arr) {
             const steps = [];
             let n = arr.length;
@@ -231,27 +222,42 @@
                 arr[j + 1] = key;
                 steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), line: 9});
             }
+            steps.push({arr: arr.slice(), highlight: [], isFinished: true, sorted: Array.from({length: n}, (_, idx) => idx), line: 11});
             return steps;
         }
 
         let steps = [];
         let currentStep = 0;
+        let isPlaying = false;
+        let timer = null;
 
         function render(stepIndex) {
             if (!steps[stepIndex]) return;
-            const { arr, highlight, sorted, line } = steps[stepIndex];
+            const { arr, highlight, sorted, line, isFinished } = steps[stepIndex];
             
+            const containerDiv = document.querySelector('.container');
+            if (isFinished) {
+                if (!containerDiv.classList.contains('finished-bg')) {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                }
+                containerDiv.classList.add('finished-bg');
+            } else {
+                containerDiv.classList.remove('finished-bg');
+            }
+
             // Render Bars
             const animDiv = document.getElementById('animation');
             animDiv.innerHTML = '';
             const barContainer = document.createElement('div');
             barContainer.className = 'bar-container';
+            const maxVal = Math.max(...arr, 1);
             arr.forEach((v, idx) => {
                 const bar = document.createElement('div');
                 bar.className = 'bar';
-                if (highlight.includes(idx)) bar.classList.add('highlight');
+                if (isFinished) bar.classList.add('finished');
+                else if (highlight.includes(idx)) bar.classList.add('highlight');
                 if (sorted && sorted.includes(idx)) bar.classList.add('sorted');
-                bar.style.height = (v * 15) + 'px';
+                bar.style.height = `${(v / maxVal) * 160}px`;
                 bar.textContent = v;
                 barContainer.appendChild(bar);
             });
@@ -260,12 +266,29 @@
             // Render Code
             const codeDiv = document.getElementById('code');
             codeDiv.innerHTML = '';
-            codeLines.forEach((line, idx) => {
+            codeLines.forEach((codeText, idx) => {
                 const div = document.createElement('div');
                 if (idx === line) div.className = 'code-highlight';
-                div.textContent = line;
+                div.innerHTML = highlightJS(codeText);
                 codeDiv.appendChild(div);
             });
+        }
+
+        function autoPlay() {
+            if (currentStep < steps.length - 1 && isPlaying) {
+                currentStep++;
+                render(currentStep);
+                const speed = 1050 - document.getElementById('speed').value;
+                timer = setTimeout(autoPlay, speed);
+            } else {
+                stopAutoPlay();
+            }
+        }
+
+        function stopAutoPlay() {
+            isPlaying = false;
+            clearTimeout(timer);
+            document.getElementById('autoPlayBtn').textContent = '自動播放';
         }
 
         function startSorting() {
@@ -280,13 +303,26 @@
         document.getElementById('sortBtn').addEventListener('click', startSorting);
         
         document.getElementById('nextBtn').addEventListener('click', () => {
+            stopAutoPlay();
             if (currentStep < steps.length - 1) {
                 currentStep++;
                 render(currentStep);
             }
         });
 
+        document.getElementById('autoPlayBtn').onclick = () => {
+            if (isPlaying) {
+                stopAutoPlay();
+            } else {
+                if (steps.length === 0) startSorting();
+                isPlaying = true;
+                document.getElementById('autoPlayBtn').textContent = '停止播放';
+                autoPlay();
+            }
+        };
+
         document.getElementById('resetBtn').addEventListener('click', () => {
+            stopAutoPlay();
             currentStep = 0;
             steps = [];
             document.getElementById('animation').innerHTML = '';
