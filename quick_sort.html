@@ -157,19 +157,25 @@
 
             function partition(low, high) {
                 let pivot = arr[high];
-                steps.push({ arr: [...arr], pivotIdx: high, highlighe
+                steps.push({ arr: [...arr], pivotIdx: high, highlight: [], comparisons, swaps, line: 8 });
+                let i = low - 1;
                 for (let j = low; j < high; j++) {
-                    comparisons++; swaps, line: 11 });
+                    comparisons++;
+                    steps.push({ arr: [...arr], pivotIdx: high, highlight: [j], comparisons, swaps, line: 11 });
                     if (arr[j] < pivot) {
-                        i++; swaps++;
-                        [arr[i], arr[j]] s.push({ arr: [...arr], pivotIdx: high, highlight: [i, j], comparisons, swaps, line: 12 });
+                        i++;
+                        swaps++;
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                        steps.push({ arr: [...arr], pivotIdx: high, highlight: [i, j], comparisons, swaps, line: 12 });
                     }
                 }
+                [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
                 swaps++;
                 steps.push({ arr: [...arr], pivotIdx: i + 1, highlight: [i + 1, high], comparisons, swaps, line: 15 });
                 return i + 1;
             }
-            functf (low < high) {
+            function sort(low, high) {
+                if (low < high) {
                     let pi = partition(low, high);
                     sort(low, pi - 1);
                     sort(pi + 1, high);
@@ -180,13 +186,15 @@
             return steps;
         }
 
-        function render(stepIdx)x
+        function render(stepIdx) {
+            if (!steps[stepIdx]) return;
             const { arr, pivotIdx, highlight, isFinished, line, comparisons, swaps } = steps[stepIdx];
             const animDiv = document.getElementById('animation');
             const containerDiv = document.querySelector('.container');
 
             // Update Stats
-            document.getElementById('co
+            document.getElementById('comparisonCount').textContent = comparisons || 0;
+            document.getElementById('swapCount').textContent = swaps || 0;
 
             if (isFinished) {
                 if (!containerDiv.classList.contains('finished-bg')) {
