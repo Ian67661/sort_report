@@ -179,6 +179,9 @@
         <span style="color: #2c3e50; font-weight: bold;">速度：</span>
         <input type="range" id="speed" min="50" max="1000" value="500" style="width: 150px;">
     </div>
+    <div id="stats" style="text-align: center; margin-bottom: 20px; font-size: 1.2em; font-weight: bold; color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);">
+        比較次數: <span id="comparisonCount">0</span> | 移動次數: <span id="swapCount">0</span>
+    </div>
     <div id="animation"></div>
     <div id="code" class="code-block"></div>
 
@@ -209,20 +212,26 @@
         function insertionSortSteps(arr) {
             const steps = [];
             let n = arr.length;
+            let comparisons = 0;
+            let swaps = 0;
             for (let i = 1; i < n; i++) {
                 let key = arr[i];
                 let j = i - 1;
-                steps.push({arr: arr.slice(), highlight: [i], sorted: Array.from({length: i}, (_, idx) => idx), line: 3});
+                steps.push({arr: arr.slice(), highlight: [i], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 3});
+                
+                comparisons++; // 進入 while 前的第一次比較
                 while (j >= 0 && arr[j] > key) {
-                    steps.push({arr: arr.slice(), highlight: [j, j+1], sorted: Array.from({length: i}, (_, idx) => idx), line: 5});
+                    steps.push({arr: arr.slice(), highlight: [j, j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 5});
                     arr[j + 1] = arr[j];
-                    j--;
-                    steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i}, (_, idx) => idx), line: 6});
+                    swaps++; j--;
+                    steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 6});
+                    if (j >= 0) comparisons++; // 如果還有下一次循環，增加比較次數
                 }
                 arr[j + 1] = key;
-                steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), line: 9});
+                swaps++;
+                steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), comparisons, swaps, line: 9});
             }
-            steps.push({arr: arr.slice(), highlight: [], isFinished: true, sorted: Array.from({length: n}, (_, idx) => idx), line: 11});
+            steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, isFinished: true, sorted: Array.from({length: n}, (_, idx) => idx), line: 11});
             return steps;
         }
 
@@ -233,7 +242,11 @@
 
         function render(stepIndex) {
             if (!steps[stepIndex]) return;
-            const { arr, highlight, sorted, line, isFinished } = steps[stepIndex];
+            const { arr, highlight, sorted, line, isFinished, comparisons, swaps } = steps[stepIndex];
+            
+            // Update Stats
+            document.getElementById('comparisonCount').textContent = comparisons || 0;
+            document.getElementById('swapCount').textContent = swaps || 0;
             
             const containerDiv = document.querySelector('.container');
             if (isFinished) {
@@ -327,6 +340,8 @@
             steps = [];
             document.getElementById('animation').innerHTML = '';
             document.getElementById('code').innerHTML = '';
+            document.getElementById('comparisonCount').textContent = '0';
+            document.getElementById('swapCount').textContent = '0';
         });
     </script>
 
