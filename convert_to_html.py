@@ -47,5 +47,5 @@ def convert_md_to_pretty_html(md_file_path, html_file_path):
 
 if __name__ == "__main__":
     input_path = r'd:\Ian\bublle\sort_report\README.md'
-    output_path = r'd:\Ian\bublle\sort_report\index.html'
+    output_path = r'd:\Ian\bublle\sort_report\report.html'
     convert_md_to_pretty_html(input_path, output_path)
