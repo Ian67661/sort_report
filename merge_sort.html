@@ -65,6 +65,32 @@
             animation: glow-pulse 2s infinite ease-in-out;
         }
         .in-range { border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.2); }
+
+        /* 雙欄佈局與日誌樣式 */
+        .visualization-layout {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        .main-column { flex: 2; min-width: 0; }
+        #log-panel {
+            flex: 1;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #30363d;
+            height: 600px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .log-round { color: #f1c40f; font-weight: bold; margin-top: 10px; border-top: 1px solid #30363d; padding-top: 10px; }
+        .log-swap { color: #2ecc71; }
+
         .code-block { 
             white-space: pre; font-family: 'Fira Code', monospace; 
             background: #0d1117; color: #c9d1d9; padding: 25px; 
@@ -127,8 +153,13 @@
             比較次數: <span id="comparisonCount">0</span> | 移動次數: <span id="swapCount">0</span>
         </div>
 
-        <div id="animation"></div>
-        <div id="code" class="code-block"></div>
+        <div class="visualization-layout">
+            <div class="main-column">
+                <div id="animation"></div>
+                <div id="code" class="code-block"></div>
+            </div>
+            <div id="log-panel">等待排序開始...</div>
+        </div>
 
         <h2>結論</h2>
         <p>合併排序法是典型的分治法應用，雖然它需要額外的空間來存儲合併過程中的數據（空間複雜度為 O(n)），但穩定的時間表現使其在處理大型鏈結串列或外部排序時非常受歡迎。</p>
@@ -180,6 +211,8 @@
                 let R = arr.slice(m + 1, r + 1);
                 let i = 0, j = 0, k = l;
 
+                steps.push({ arr: [...arr], highlight: [], range: [l, r], comparisons, swaps, line: 8, msg: `── 合併範圍 [${l}, ${m}] 與 [${m+1}, ${r}] ──`, type: 'round' });
+
                 while (i < L.length && j < R.length) {
                     // 比較階段
                     comparisons++;
@@ -188,7 +221,8 @@
                         highlight: [l + i, m + 1 + j], 
                         range: [l, r],
                         comparisons, swaps,
-                        line: 12 
+                        line: 12,
+                        msg: `比較 L[${i}]=${L[i]} 與 R[${j}]=${R[j]}`
                     });
                     if (L[i] <= R[j]) {
                         arr[k] = L[i];
@@ -204,18 +238,20 @@
                         highlight: [k], 
                         range: [l, r],
                         comparisons, swaps,
-                        line: 13 
+                        line: 13,
+                        msg: `寫入較小值 ${arr[k]} 到位置 ${k}`,
+                        type: 'swap'
                     });
                     k++;
                 }
                 while (i < L.length) {
                     arr[k] = L[i]; swaps++;
-                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], comparisons, swaps, line: 16 });
+                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], comparisons, swaps, line: 16, msg: `合併剩餘左側元素 ${arr[k]}`, type: 'swap' });
                     i++; k++;
                 }
                 while (j < R.length) {
                     arr[k] = R[j]; swaps++;
-                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], comparisons, swaps, line: 17 });
+                    steps.push({ arr: [...arr], highlight: [k], range: [l, r], comparisons, swaps, line: 17, msg: `合併剩餘右側元素 ${arr[k]}`, type: 'swap' });
                     j++; k++;
                 }
             }
@@ -223,14 +259,14 @@
             function sort(l, r) {
                 if (l >= r) return;
                 let m = Math.floor((l + r) / 2);
-                steps.push({ arr: [...arr], highlight: [], range: [l, r], comparisons, swaps, line: 2 });
+                steps.push({ arr: [...arr], highlight: [], range: [l, r], comparisons, swaps, line: 2, msg: `拆解區間 [${l}, ${r}] 到 [${l}, ${m}] 和 [${m+1}, ${r}]` });
                 sort(l, m);
                 sort(m + 1, r);
                 merge(l, m, r);
             }
 
             sort(0, arr.length - 1);
-            steps.push({ arr: [...arr], highlight: [], range: [], comparisons, swaps, isFinished: true, line: 0 });
+            steps.push({ arr: [...arr], highlight: [], range: [], comparisons, swaps, isFinished: true, line: 0, msg: `🎉 排序完成！` });
             return steps;
         }
 
@@ -283,6 +319,20 @@
                 div.innerHTML = highlightJS(codeText);
                 codeDiv.appendChild(div);
             });
+
+            // 渲染日誌面板
+            const logPanel = document.getElementById('log-panel');
+            logPanel.innerHTML = '';
+            for (let i = 0; i <= stepIdx; i++) {
+                if (steps[i].msg) {
+                    const div = document.createElement('div');
+                    if (steps[i].type === 'round') div.className = 'log-round';
+                    else if (steps[i].type === 'swap') div.className = 'log-swap';
+                    div.textContent = steps[i].msg;
+                    logPanel.appendChild(div);
+                }
+            }
+            logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function autoPlay() {

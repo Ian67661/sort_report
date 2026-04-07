@@ -142,6 +142,31 @@
             background: #3498db; border-radius: 50%; cursor: pointer;
         }
 
+        /* 雙欄佈局與日誌樣式 */
+        .visualization-layout {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        .main-column { flex: 2; min-width: 0; }
+        #log-panel {
+            flex: 1;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #30363d;
+            height: 600px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .log-round { color: #f1c40f; font-weight: bold; margin-top: 10px; border-top: 1px solid #30363d; padding-top: 10px; }
+        .log-swap { color: #ff4757; }
+
         .back-link { 
             position: fixed; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); 
             padding: 10px 20px; border-radius: 25px; z-index: 1000; color: #fff; text-decoration: none;
@@ -182,8 +207,13 @@
     <div id="stats" style="text-align: center; margin-bottom: 20px; font-size: 1.2em; font-weight: bold; color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);">
         比較次數: <span id="comparisonCount">0</span> | 移動次數: <span id="swapCount">0</span>
     </div>
-    <div id="animation"></div>
-    <div id="code" class="code-block"></div>
+    <div class="visualization-layout">
+        <div class="main-column">
+            <div id="animation"></div>
+            <div id="code" class="code-block"></div>
+        </div>
+        <div id="log-panel">等待排序開始...</div>
+    </div>
 
     <script>
         const codeLines = [
@@ -217,21 +247,21 @@
             for (let i = 1; i < n; i++) {
                 let key = arr[i];
                 let j = i - 1;
-                steps.push({arr: arr.slice(), highlight: [i], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 3});
+                steps.push({arr: arr.slice(), highlight: [i], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 3, msg: `── 輪次 ${i}：處理元素 ${key} ──`, type: 'round'});
                 
                 comparisons++; // 進入 while 前的第一次比較
                 while (j >= 0 && arr[j] > key) {
-                    steps.push({arr: arr.slice(), highlight: [j, j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 5});
+                    steps.push({arr: arr.slice(), highlight: [j, j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 5, msg: `比較 [${j}]=${arr[j]} > ${key}，向右移動`});
                     arr[j + 1] = arr[j];
                     swaps++; j--;
-                    steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 6});
+                    steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i}, (_, idx) => idx), comparisons, swaps, line: 6, msg: `移動完成，繼續向左檢查`});
                     if (j >= 0) comparisons++; // 如果還有下一次循環，增加比較次數
                 }
                 arr[j + 1] = key;
                 swaps++;
-                steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), comparisons, swaps, line: 9});
+                steps.push({arr: arr.slice(), highlight: [j+1], sorted: Array.from({length: i+1}, (_, idx) => idx), comparisons, swaps, line: 9, msg: `將 ${key} 插入位置 ${j+1}`, type: 'swap'});
             }
-            steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, isFinished: true, sorted: Array.from({length: n}, (_, idx) => idx), line: 11});
+            steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, isFinished: true, sorted: Array.from({length: n}, (_, idx) => idx), line: 11, msg: `🎉 排序完成！`});
             return steps;
         }
 
@@ -285,6 +315,20 @@
                 div.innerHTML = highlightJS(codeText);
                 codeDiv.appendChild(div);
             });
+
+            // 渲染日誌面板
+            const logPanel = document.getElementById('log-panel');
+            logPanel.innerHTML = '';
+            for (let i = 0; i <= stepIndex; i++) {
+                if (steps[i].msg) {
+                    const div = document.createElement('div');
+                    if (steps[i].type === 'round') div.className = 'log-round';
+                    else if (steps[i].type === 'swap') div.className = 'log-swap';
+                    div.textContent = steps[i].msg;
+                    logPanel.appendChild(div);
+                }
+            }
+            logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function autoPlay() {

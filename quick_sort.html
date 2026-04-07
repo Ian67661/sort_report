@@ -62,6 +62,31 @@
         }
         .finished-bg { animation: glow-pulse 2s infinite ease-in-out; }
 
+        /* 雙欄佈局與日誌樣式 */
+        .visualization-layout {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        .main-column { flex: 2; min-width: 0; }
+        #log-panel {
+            flex: 1;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #30363d;
+            height: 600px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .log-round { color: #f1c40f; font-weight: bold; margin-top: 10px; border-top: 1px solid #30363d; padding-top: 10px; }
+        .log-swap { color: #ff4757; }
+
         #controls { 
             display: flex; gap: 15px; align-items: center; margin: 40px 0; padding: 25px;
             background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
@@ -108,8 +133,13 @@
             比較次數: <span id="comparisonCount">0</span> | 交換次數: <span id="swapCount">0</span>
         </div>
 
-        <div id="animation"></div>
-        <div id="code" class="code-block"></div>
+        <div class="visualization-layout">
+            <div class="main-column">
+                <div id="animation"></div>
+                <div id="code" class="code-block"></div>
+            </div>
+            <div id="log-panel">等待排序開始...</div>
+        </div>
 
         <h2>結論</h2>
         <p>快速排序不需要額外的輔助空間（原地排序），且快取友善度高，是現代軟體庫中最常用的排序法。</p>
@@ -157,21 +187,23 @@
 
             function partition(low, high) {
                 let pivot = arr[high];
-                steps.push({ arr: [...arr], pivotIdx: high, highlight: [], comparisons, swaps, line: 8 });
+                steps.push({ arr: [...arr], pivotIdx: high, highlight: [], comparisons, swaps, line: 8, msg: `── 分區開始 (範圍 [${low}, ${high}])，基準 Pivot: ${pivot} ──`, type: 'round' });
                 let i = low - 1;
                 for (let j = low; j < high; j++) {
                     comparisons++;
-                    steps.push({ arr: [...arr], pivotIdx: high, highlight: [j], comparisons, swaps, line: 11 });
+                    let logMsg = `比較 [${j}]=${arr[j]} vs Pivot=${pivot}`;
                     if (arr[j] < pivot) {
                         i++;
                         swaps++;
                         [arr[i], arr[j]] = [arr[j], arr[i]];
-                        steps.push({ arr: [...arr], pivotIdx: high, highlight: [i, j], comparisons, swaps, line: 12 });
+                        steps.push({ arr: [...arr], pivotIdx: high, highlight: [i, j], comparisons, swaps, line: 12, msg: `${logMsg} → 小於基準，與 [${i}] 交換`, type: 'swap' });
+                    } else {
+                        steps.push({ arr: [...arr], pivotIdx: high, highlight: [j], comparisons, swaps, line: 11, msg: `${logMsg} → 大於等於基準` });
                     }
                 }
                 [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
                 swaps++;
-                steps.push({ arr: [...arr], pivotIdx: i + 1, highlight: [i + 1, high], comparisons, swaps, line: 15 });
+                steps.push({ arr: [...arr], pivotIdx: i + 1, highlight: [i + 1, high], comparisons, swaps, line: 15, msg: `分區結束，Pivot 回位至位置 ${i + 1}`, type: 'swap' });
                 return i + 1;
             }
             function sort(low, high) {
@@ -182,7 +214,7 @@
                 }
             }
             sort(0, arr.length - 1);
-            steps.push({ arr: [...arr], pivotIdx: -1, highlight: [], comparisons, swaps, isFinished: true, line: 0 });
+            steps.push({ arr: [...arr], pivotIdx: -1, highlight: [], comparisons, swaps, isFinished: true, line: 0, msg: `🎉 排序完成！` });
             return steps;
         }
 
@@ -229,6 +261,20 @@
                 div.innerHTML = highlightJS(codeText);
                 codeDiv.appendChild(div);
             });
+
+            // 渲染日誌面板
+            const logPanel = document.getElementById('log-panel');
+            logPanel.innerHTML = '';
+            for (let i = 0; i <= stepIdx; i++) {
+                if (steps[i].msg) {
+                    const div = document.createElement('div');
+                    if (steps[i].type === 'round') div.className = 'log-round';
+                    else if (steps[i].type === 'swap') div.className = 'log-swap';
+                    div.textContent = steps[i].msg;
+                    logPanel.appendChild(div);
+                }
+            }
+            logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function autoPlay() {

@@ -131,6 +131,31 @@
             background: #3498db; border-radius: 50%; cursor: pointer;
         }
 
+        /* 新增：雙欄佈局與日誌樣式 */
+        .visualization-layout {
+            display: flex;
+            gap: 25px;
+            margin-top: 20px;
+            align-items: flex-start;
+        }
+        .main-column { flex: 2; min-width: 0; }
+        #log-panel {
+            flex: 1;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #30363d;
+            height: 700px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .log-round { color: #f1c40f; font-weight: bold; margin-top: 10px; border-top: 1px solid #30363d; padding-top: 10px; }
+        .log-swap { color: #ff4757; }
+
         .back-link { 
             position: fixed; top: 20px; left: 20px; background: rgba(255, 255, 255, 0.1); 
             padding: 10px 20px; border-radius: 25px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1000;
@@ -172,8 +197,14 @@
     <div id="stats" style="text-align: center; margin-bottom: 20px; font-size: 1.2em; font-weight: bold; color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);">
         比較次數: <span id="comparisonCount">0</span> | 交換次數: <span id="swapCount">0</span>
     </div>
-    <div id="animation"></div>
-    <div id="code" class="code-block"></div>
+
+    <div class="visualization-layout">
+        <div class="main-column">
+            <div id="animation"></div>
+            <div id="code" class="code-block"></div>
+        </div>
+        <div id="log-panel">等待排序開始...</div>
+    </div>
 
     <script>
         const codeLines = [
@@ -206,17 +237,31 @@
             let comparisons = 0;
             let swaps = 0;
             for (let i = 0; i < n - 1; i++) {
+                let roundSwapped = false;
+                steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, line: 2, msg: `── 第 ${i + 1} 輪 掃描開始 ──`, type: 'round'});
                 for (let j = 0; j < n - 1 - i; j++) {
                     comparisons++;
-                    steps.push({arr:arr.slice(), highlight:[j, j+1], comparisons, swaps, line: 4});
+                    let logMsg = `比較 [${j}]=${arr[j]} vs [${j + 1}]=${arr[j+1]}`;
                     if (arr[j] > arr[j + 1]) {
+                        logMsg += ` → 需交換`;
+                        steps.push({arr: arr.slice(), highlight: [j, j+1], comparisons, swaps, line: 4, msg: logMsg});
                         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
                         swaps++;
-                        steps.push({arr:arr.slice(), highlight:[j, j+1], comparisons, swaps, line: 6});
+                        roundSwapped = true;
+                        steps.push({arr: arr.slice(), highlight: [j, j+1], comparisons, swaps, line: 6, msg: `　⟳ 交換 → [ ${arr.join(', ')} ]`, type: 'swap'});
+                    } else {
+                        logMsg += ` → 不換`;
+                        steps.push({arr: arr.slice(), highlight: [j, j+1], comparisons, swaps, line: 4, msg: logMsg});
                     }
                 }
+                let finishedPart = arr.slice(n - 1 - i).join(', ');
+                steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, line: 10, msg: `第 ${i + 1} 輪完成，就位：${finishedPart}`, type: 'round'});
+                if (!roundSwapped) {
+                    steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, isFinished: true, line: 12, msg: `⚡ 提前結束（無交換）`});
+                    return steps;
+                }
             }
-            steps.push({arr:arr.slice(), highlight:[], comparisons, swaps, isFinished: true, line: 12});
+            steps.push({arr: arr.slice(), highlight: [], comparisons, swaps, isFinished: true, line: 12, msg: `🎉 排序完成！`});
             return steps;
         }
 
@@ -270,6 +315,20 @@
                 div.innerHTML = highlightJS(codeText);
                 codeDiv.appendChild(div);
             });
+
+            // 渲染日誌面板
+            const logPanel = document.getElementById('log-panel');
+            logPanel.innerHTML = '';
+            for (let i = 0; i <= stepIndex; i++) {
+                if (steps[i].msg) {
+                    const div = document.createElement('div');
+                    if (steps[i].type === 'round') div.className = 'log-round';
+                    else if (steps[i].type === 'swap') div.className = 'log-swap';
+                    div.textContent = steps[i].msg;
+                    logPanel.appendChild(div);
+                }
+            }
+            logPanel.scrollTop = logPanel.scrollHeight;
         }
 
         function autoPlay() {
